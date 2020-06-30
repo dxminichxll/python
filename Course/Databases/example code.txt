@@ -1,0 +1,19 @@
+SELECT artists.name, albums.name, songs.track, songs.title FROM songs
+INNER JOIN albums ON songs.album = albums._id
+INNER JOIN artists ON albums.artist = artists._id
+WHERE artists.name LIKE "jefferson%"
+ORDER BY artists.name, albums.name, songs.track;
+
+
+CREATE VIEW artist_list AS
+SELECT artists.name, albums.name, songs.track, songs.title FROM songs
+INNER JOIN albums ON songs.album = albums._id
+INNER JOIN artists ON albums.artist = artists._id
+ORDER BY artists.name, albums.name, songs.track;
+
+views cannot be modified, only viewed
+DROP VIEW album_list;
+^^ delete the view
+
+UPDATE artists SET name = "One Kitten" WHERE artists.name = "Mehitabel";
+^^ change the name of an artists name
