@@ -1,6 +1,7 @@
 # Import the required module for text
 # to speech conversion
 from gtts import gTTS
+import webbrowser
 
 # This module is imported so that we can
 # play the converted audio
@@ -23,4 +24,4 @@ myobj = gTTS(text=mytext, lang=language, slow=False)
 myobj.save("welcome.mp3")
 
 # Playing the converted file
-os.system("welcome.mp3")
+webbrowser.open("welcome.mp3")
