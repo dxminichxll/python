@@ -1,11 +1,11 @@
 import tkinter
-import time
 
 # initiate variables
 totalSticks = int(input("Pick a number of sticks for the game:"))
- # sets the starting amount of sticks
-player = "Player 1" # states current player
-text = 0
+# sets the starting amount of sticks
+player = "Player 1"  # states current player
+num = 0
+
 
 def new_player(player):  # alternates between players
     if player == "Player 1":
@@ -15,11 +15,11 @@ def new_player(player):  # alternates between players
 
 
 def sticks_remaining(totalSticks, player):  # determines if a player has won
-    if totalSticks > 0:
+    if totalSticks > 0:  # Updates the GUI showing sticks remaining and the current player
         sticksText.set("Sticks remaining: {}\n".format(totalSticks))
         playerText.set("{}, please pick 1, 2 or 3 sticks".format(player))
-    else:
-        print('='*40)
+
+    else:  # changes GUI to display the winner, and destroy other widgets
         playerText.set("")
         inputBox.destroy()
         header.destroy()
@@ -29,35 +29,33 @@ def sticks_remaining(totalSticks, player):  # determines if a player has won
         sticksLabel.configure(background=fg, foreground=bg)
 
 
-
-mainWindow = tkinter.Tk()
-
-
-def enterPressed(event):
+def enter_pressed(event):  # function for when enter is pressed (user submits a number)
     global totalSticks
     global player
     try:
-        text = int(inputBox.get())
-    except ValueError:
+        num = int(inputBox.get())
+    except ValueError:  # catches errors like using letters or box left blank
         inputBox.delete(0, 'end')
-    inputBox.delete(0, 'end')
-    print(text)
-    # sticksText.set(player + " Pick up 1,2 or 3 sticks: ")
-    if 0 < text < 4 and text <= totalSticks:
-        totalSticks -= text
-        sticks_remaining(totalSticks, player)
+    inputBox.delete(0, 'end')  # clears input box
+    if 0 < num < 4 and num <= totalSticks:  # checks if the number is 1, 2 or 3
+        totalSticks -= num  # subtracts the users number from the total amount of sticks
+        sticks_remaining(totalSticks, player)  # uses the sticks remaining function to check whether a player has won
     else:
-        playerText.set("{}, Please pick a valid number of sticks(1, 2 or 3)"
-        .format(player))
+        playerText.set("{}, Please pick a valid number of sticks(1, 2 or 3)".format(player))
 
-    player = new_player(player)
+    player = new_player(player)  # alternates new player
 
 
-mainWindow.bind('<Return>', enterPressed)
+# ============ Tkinter stuff ============
+
+mainWindow = tkinter.Tk()  # creates tkinter object
+
+mainWindow.bind('<Return>', enter_pressed)  # bind a function to the 'enter' key
 
 mainWindow.title("Pick up sticks!")
 mainWindow.geometry('640x480+8+400')
 
+# configure grid for the widgets
 mainWindow.columnconfigure(0, weight=2)
 mainWindow.columnconfigure(1, weight=2)
 mainWindow.columnconfigure(2, weight=2)
@@ -67,24 +65,29 @@ mainWindow.rowconfigure(1, weight=2)
 mainWindow.rowconfigure(2, weight=2)
 mainWindow.rowconfigure(3, weight=1)
 
+# Header titled 'Pick up sticks!'
 header = tkinter.Label(mainWindow, text='Pick up sticks!')
 header.config(font=("Courier", 40))
 header.grid(row=0, column=1, sticky='nsew')
 
+# Text showing sticks remaining
 sticksText = tkinter.Variable(mainWindow)
 sticksText.set("Sticks remaining: {}\n".format(totalSticks))
 sticksLabel = tkinter.Label(mainWindow, textvariable=sticksText)
 sticksLabel.config(font=("Courier", 30))
 sticksLabel.grid(row=1, column=1, sticky='nsew')
 
+# Text showing which player's turn it is
 playerText = tkinter.Variable(mainWindow)
 playerText.set("{}, please pick 1, 2 or 3 sticks".format(player))
 playerLabel = tkinter.Label(mainWindow, textvariable=playerText)
-playerLabel.config(font=("Courier", 15))
+playerLabel.config(font=("Courier", 12))
 playerLabel.grid(row=2, column=1, sticky='n')
 
+# creates the input box for the player to enter numbers
 inputBox = tkinter.Entry(mainWindow, justify='center')
 inputBox.config(font=("Courier", 20))
 inputBox.grid(row=2, column=1)
 
+# starts the mainloop
 mainWindow.mainloop()
