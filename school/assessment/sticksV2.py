@@ -1,10 +1,20 @@
 import tkinter
 
 # initiate variables
-totalSticks = int(input("Pick a number of sticks for the game:"))
-# sets the starting amount of sticks
+while True:
+    try:  # try-except block only allows integer input
+        totalSticks = int(input("Pick a number of sticks for the game (less than 100000 and more than 10):"))  # sets the starting amount of sticks
+        if 10 <= totalSticks <= 100000:  # doesn't allow input over 100000 (so the GUI doesn't break) or a number too small
+            break
+        else:
+            print('test')
+            continue
+
+    except ValueError:
+        continue
+
 player = "Player 1"  # states current player
-num = 0
+# num = 0
 
 
 def new_player(player):  # alternates between players
@@ -34,16 +44,16 @@ def enter_pressed(event):  # function for when enter is pressed (user submits a 
     global player
     try:
         num = int(inputBox.get())
+        # sets the 'num' variable equal to the current integer in the input box when the enter key is pressed
     except ValueError:  # catches errors like using letters or box left blank
-        inputBox.delete(0, 'end')
+        num = 0  # resets 'num' variable to 0
     inputBox.delete(0, 'end')  # clears input box
     if 0 < num < 4 and num <= totalSticks:  # checks if the number is 1, 2 or 3
         totalSticks -= num  # subtracts the users number from the total amount of sticks
+        player = new_player(player)  # alternates new player
         sticks_remaining(totalSticks, player)  # uses the sticks remaining function to check whether a player has won
     else:
         playerText.set("{}, Please pick a valid number of sticks(1, 2 or 3)".format(player))
-
-    player = new_player(player)  # alternates new player
 
 
 # ============ Tkinter stuff ============
