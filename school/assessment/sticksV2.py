@@ -14,7 +14,6 @@ while True:
         continue
 
 player = "Player 1"  # states current player
-# num = 0
 
 
 def new_player(player):  # alternates between players
