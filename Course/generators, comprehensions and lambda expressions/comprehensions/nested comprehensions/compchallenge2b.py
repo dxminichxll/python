@@ -35,9 +35,6 @@ print("nested comprehension")
 print("--------------------")
 exits_to_destination_3 = [[(xit, locations[xit]) for xit in exits if loc in exits[xit].values()]
                           for loc in sorted(locations)]
-print(exits_to_destination_3)
-
-print()
 
 for index, loc in enumerate(exits_to_destination_3):
     print("Locations leading to {}".format(index), end='\t')
