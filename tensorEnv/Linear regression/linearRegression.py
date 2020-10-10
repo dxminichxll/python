@@ -27,9 +27,9 @@ X = np.array(data.drop([predict], 1))
 y = np.array(data[predict])
 # ^^ this creates an array of just our label
 
-x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.1)
+# x_train, x_test, y_train, y_test = sklearn.model_selection.train_test_split(X, y, test_size=0.1)
 
-"""
+
 best = 0
 # ^^ Keeps track of the best accuracy so far
 for _ in range(30):
@@ -44,29 +44,32 @@ for _ in range(30):
 
     acc = linear.score(x_test, y_test)
     # ^^ this tests our line of best fit against some data, and it will provide an accuracy of the program
-    print(acc)
+    # print(acc)
 
     if acc > best:
         best = acc
+        print(best)
         with open("studentmodel.pickle", "wb") as f:
             pickle.dump(linear, f)
-"""
+        # Saves our best test to a file
+
 
 pickle_in = open("studentmodel.pickle", "rb")
 linear = pickle.load(pickle_in)
+# ^^ reads in the file
 
-print("Co: \n", linear.coef_)
-print("Intercept: \n", linear.intercept_)
-
-predictions = linear.predict(x_test)
-
-for x in range(len(predictions)):
-    print(predictions[x], x_test[x], y_test[x])
+# print("Co: \n", linear.coef_)
+# print("Intercept: \n", linear.intercept_)
+#
+# predictions = linear.predict(x_test)
+#
+# for x in range(len(predictions)):
+#     print(predictions[x], x_test[x], y_test[x])
 
 p = 'G1'
 
 style.use("ggplot")
 pyplot.scatter(data[p], data["G3"])
 pyplot.xlabel(p)
-pyplot.xlabel("Final grade")
+pyplot.ylabel("Final grade")
 pyplot.show()
