@@ -3,7 +3,9 @@ grid_width = 60
 
 
 block_size = 10
-block_height = 5
+block_height = 5 
+lines = 2
+sw = 1
 
 noise_scale = .05
 noise_multiplier = 100
@@ -35,6 +37,10 @@ def draw_block(x,y):
     vertex(x - block_size, y + block_height)
     endShape(CLOSE)
     
+    line_sep = float(block_height)/lines
+    for l in range(lines):
+        line(x - block_size, y + (l * line_sep), x, y + block_size/2 + (l * line_sep))
+    
     # Right Face
     beginShape()
     vertex(x + block_size, y)
@@ -46,11 +52,20 @@ def draw_block(x,y):
 
 def setup():
      size(w, h)
-     draw_block(250, 250)
+     strokeWeight(sw)
      
-     for x in range(grid_height):
-         for y in range(grid_width):
-             
-             cubes = int(noise(x * noise_scale, y * noise_scale) * noise_multiplier)
-             draw_block((start_block_x + x * block_size) - y * block_size, (start_block_y + x * (block_size/2)) + y * (block_size/2))
+     background(190, 194, 249)
+     fill(254, 171, 227)
      
+     for g in range(10):
+
+     
+        for x in range(grid_height):
+            for y in range(grid_width):
+                
+                cubes = int(noise((x + g)* noise_scale, (y + g) * noise_scale) * noise_multiplier) / noise_dampener
+                for i in range(cubes):
+                    draw_block((start_block_x + x * block_size) - y * block_size, (start_block_y + x * (block_size/2)) + y * (block_size/2) - i * block_height)
+    
+        save(str(g) + '.png')
+    
