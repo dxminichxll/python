@@ -1,17 +1,26 @@
-import cv2
+modelpath = "Downloads/yolo.h5"
 
-cv2.namedWindow("preview")
-vc = cv2.VideoCapture(0)
+from imageai import Detection
+yolo = Detection.ObjectDetection()
+yolo.setModelTypeAsYOLOv3()
+yolo.setModelPath(modelpath)
+yolo.loadModel()
 
-if vc.isOpened(): # try to get the first frame
-    rval, frame = vc.read()
-else:
-    rval = False
-
-while rval:
-    cv2.imshow("preview", frame)
-    rval, frame = vc.read()
-    key = cv2.waitKey(20)
-    if key == 27: # exit on ESC
+while True:
+    ## read frames
+    ret, img = cam.read()
+    ## predict yolo
+    img, preds = yolo.detectCustomObjectsFromImage(input_image=img,
+                      custom_objects=None, input_type="array",
+                      output_type="array",
+                      minimum_percentage_probability=70,
+                      display_percentage_probability=False,
+                      display_object_name=True)
+    ## display predictions
+    cv2.imshow("", img)
+    ## press q or Esc to quit
+    if (cv2.waitKey(1) & 0xFF == ord("q")) or (cv2.waitKey(1)==27):
         break
-cv2.destroyWindow("preview")
+## close camera
+cam.release()
+cv2.destroyAllWindows()
