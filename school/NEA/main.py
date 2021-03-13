@@ -4,7 +4,7 @@ import sqlite3
 import tkinter as tk
 # Connect to database and create table if needed
 db = sqlite3.connect("accounts.sqlite", detect_types=sqlite3.PARSE_DECLTYPES)
-db.execute("""CREATE TABLE  IF NOT EXISTS users (username TEXT,
+db.execute("""CREATE TABLE IF NOT EXISTS users (username TEXT,
                                                  password TEXT,
                                                  wins INTEGER,
                                                  losses INTEGER,
@@ -23,9 +23,9 @@ class Player():
         _password (str): password of user
 
     Methods:
-        searchUser: Searches for a user in the users database,
+        search(): Searches for a user in the users database,
                     basically a login method
-        registerUser: Adds new user to the database, basically a sign up method
+        register(): Adds new user to the database, basically a sign up method
     """
 
     def __init__(self, username, password):
@@ -40,7 +40,8 @@ class Player():
             print("username exists")
 
         else:
-            print("username does not exist, Let's get you signed up")
+            print("username does not exist")
+            userAuthApp.errorText.set("Username does not exist, try signing up")
             self.register()
 
         for password in db.execute("SELECT password FROM users WHERE (username=?)", (self.username,)):
@@ -51,17 +52,23 @@ class Player():
                 return True
             else:
                 print("Incorrect password")
+                userAuthApp.errorText.set("Incorrect password, please try again")
 
 
-    def register(self):
-        username = input("Enter new username: ")
-        password = input("Enter new password: ")
-        passwordConfirm = input("Confirm password")
-        if password == passwordConfirm:
-            db.execute("INSERT INTO users VALUES (?, ?)", (username, password))
-            self.username = username
-            self._password = password
-        self.search()
+def register(username, password):
+    allUsernames=[]
+    for row in db.execute("SELECT username FROM users"):
+        allUsernames.append(row[0])
+    if username not in allUsernames:
+        db.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (username, password, 0, 0, 0))
+        userAuthApp.signUpApp.errorText.set("Account created, exit this tab and log in")
+    else:
+        userAuthApp.signUpApp.errorText.set("Username already in use")
+        # self.username = username
+        # self._password = password
+    # self.search()
+
+    # # TODO: add password strength test
 
 
 def stats():
@@ -105,7 +112,7 @@ class GUI(tk.Frame):
     def __init__(self, master):
         tk.Frame.__init__(self)
         self.master = master
-        self.master.title("Dice game")
+        # self.master.title("Dice game")
         self.master.geometry('640x480-8-200')
         self.frame = tk.Frame(self.master)
 
@@ -113,17 +120,24 @@ class GUI(tk.Frame):
 class UserAuthentification(GUI):
     def __init__(self, master):
         GUI.__init__(self, master)
-        playerText = tk.Variable(self.frame)
-        playerText.set("Sign in as player 1")
-        self.playerLabel = tk.Label(self.frame, textvariable=playerText)
+        self.master.title("Login")
+        self.currentPlayer = 'player 1'
+        self.playerText = tk.Variable(self.frame)
+        self.errorText = tk.Variable(self.frame)
+        self.playerText.set("Sign in as player 1")
+        self.playerLabel = tk.Label(self.frame, textvariable=self.playerText)
         self.playerLabel.config(font=("Courier", 30))
         self.usernameLabel = tk.Label(self.frame, text='Username:')
         self.usernameEntry1 = tk.Entry(self.frame, width=30)
         self.passwordLabel = tk.Label(self.frame, text='Password:')
         self.passwordEntry1 = tk.Entry(self.frame, width=30)
-        self.button1 = tk.Button(self.frame, text='Sign in',
+        self.signInButton = tk.Button(self.frame, text='Sign in',
                                              width=25,
                                              command=self.sign_in)
+        self.signUpButton = tk.Button(self.frame, text='Sign up',
+                                             width=25,
+                                             command=self.sign_up)
+        self.errorLabel = tk.Label(self.frame, textvariable=self.errorText)
 
 
         self.playerLabel.pack()
@@ -131,16 +145,51 @@ class UserAuthentification(GUI):
         self.usernameEntry1.pack()
         self.passwordLabel.pack()
         self.passwordEntry1.pack()
-        self.button1.pack(pady=8)
+        self.signInButton.pack(pady=8)
+        self.signUpButton.pack()
+        self.errorLabel.pack()
         self.frame.pack()
     def sign_in(self):
         username = self.usernameEntry1.get()
         password = self.passwordEntry1.get()
         print(username, password)
-        player1 = Player(username, password)
-        if player1.search() == True:
-            self.newWindow = tk.Toplevel(self.master)
-            self.app = MainApplication(self.newWindow)
+        if self.currentPlayer == 'player 1':
+            player1 = Player(username, password)
+            if player1.search() == True:
+                self.errorText.set(' ')
+                self.playerText.set('Sign in as player 2')
+                self.currentPlayer = 'player 2'
+        else:
+            print("Test1")
+            player2 = Player(username, password)
+            print("Test2")
+            print(player2.search())
+            if player2.search() == True:
+                self.master.destroy()
+                root = tk.Tk()
+                app = MainApplication(root)
+                root.mainloop()
+                # self.newWindow = tk.Toplevel(self.master)
+                # self.app = MainApplication(self.newWindow)
+
+    def sign_up(self):
+        root2 = tk.Tk()
+        self.signUpApp = SignUp(root2)
+        root2.mainloop()
+
+class SignUp(UserAuthentification):
+    def __init__(self, master):
+        UserAuthentification.__init__(self, master)
+        self.master.title("Sign up")
+        self.playerText.set("Sign up")
+        self.signInButton.destroy()
+
+    def sign_up(self):
+        username = self.usernameEntry1.get()
+        password = self.passwordEntry1.get()
+        register(username, password)
+
+
 
 
 
@@ -157,30 +206,10 @@ class MainApplication(GUI):
 
 
 if __name__ == '__main__':
-    # username = input("Enter username: ")
-    # password = input("Enter password: ")
-    # username = 'dom'
-    # password = 'password'
-    # player1 = Player(username, password)
-    # # user.search()
-    # username = 'mac'
-    # password = 'ok'
-    # player2 = Player(username, password)
-    # stats()
 
-    # print(player1.username)
-    # print(player1._password)
-    #
-    # print(player2.username)
-    # print(player2._password)
 
     root = tk.Tk()
-    # print(root)
-    # app = GUI(root)
-    # root.mainloop()
-
-    # root2 = tk.Tk()
-    app = UserAuthentification(root)
+    userAuthApp = UserAuthentification(root)
     root.mainloop()
 
 db.commit()
