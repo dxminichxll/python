@@ -3,6 +3,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sqlite3
 import tkinter as tk
+from PIL import ImageTk, Image
 # Connect to database and create table if needed
 db = sqlite3.connect("accounts.sqlite", detect_types=sqlite3.PARSE_DECLTYPES)
 db.execute("""CREATE TABLE IF NOT EXISTS users (username TEXT,
@@ -14,6 +15,7 @@ db.execute("""CREATE TABLE IF NOT EXISTS users (username TEXT,
 # db.execute("INSERT INTO users(username, password, wins, losses, best_score) VALUES('domhill', '12345', 16, 10, 100)")
 # db.execute("INSERT INTO users(username, password, wins, losses, best_score) VALUES('dom', 'password', 100, 17, 178)")
 # db.execute("INSERT INTO users(username, password, wins, losses, best_score) VALUES('mac', 'ok', 1, 15, 20)")
+
 
 class Player():
 
@@ -251,21 +253,54 @@ class MainApplication(GUI):
         self.master.rowconfigure(4, weight=1)
 
         self.playerTextRaw = "Player 1: {} \nPlayer 2: {}".format(player1.username, player2.username)
-        # self.player2TextRaw = "Player 2: {}".format(player2.username)
         self.playerText = tk.Variable()
         self.playerText.set(self.playerTextRaw)
-        # self.player2Text = tk.Variable()
-        # self.player2Text.set(self.player2TextRaw)
         self.button1 = tk.Button(self.master, text = 'Statistics', width = 10, command = self.show_statistics)
         self.playerLabel = tk.Label(self.master, textvariable=self.playerText)
-        # self.player2Label = tk.Label(self.master, textvariable=self.player2Text)
+
         self.button1.grid(row=0, column=0, sticky='nw')
         self.playerLabel.grid(row=0, column=4, sticky='ne')
-        # self.player2Label.grid(row=0, column=4)
-        # self.playersLabel.pack()
-        # self.frame.pack()
+
+        self.image = Image.open("images/dice1.jpg")
+        self.image = self.image.resize((80,80), Image.ANTIALIAS)
+        self.dice1Image = ImageTk.PhotoImage(self.image)
+        self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
+        self.dice1ImageLabel.grid(row=1, column=1)
+
+        self.image = Image.open("images/dice2.jpg")
+        self.image = self.image.resize((80,80), Image.ANTIALIAS)
+        self.dice2Image = ImageTk.PhotoImage(self.image)
+        self.dice2ImageLabel = tk.Label(self.master, image=self.dice2Image)
+        self.dice2ImageLabel.grid(row=1, column=2)
+
+
+        # =============================== testing something
+        import time
+        # self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
+        # self.dice1ImageLabel.grid(row=2, column=1)
+        for i in range(1, 100):
+            # self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
+            # self.dice1ImageLabel.grid(row=2, column=1)
+            master.update()
+            time.sleep(0.2)
+            self.dice1ImageLabel.configure(image=self.dice2Image)
+            self.dice2ImageLabel.configure(image=self.dice1Image)
+            master.update()
+            time.sleep(0.2)
+            self.dice1ImageLabel.configure(image=self.dice1Image)
+            self.dice2ImageLabel.configure(image=self.dice2Image)
+            # self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
+            # self.dice1ImageLabel.grid(row=2, column=1)
+
+
+
+
+
+
     def show_statistics(self):
         stats()
+
+
 
 
 if __name__ == '__main__': # main program
