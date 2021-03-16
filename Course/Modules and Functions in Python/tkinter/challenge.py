@@ -95,4 +95,3 @@ divideButton.grid(row=5, column=3, sticky='ew')
 
 
 tkinter.mainloop()
-

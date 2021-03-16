@@ -78,7 +78,7 @@ def stats(): # Creates and presents statistics for each user
     # Create subplots for graphs
     fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2,
                                               ncols=2,
-                                              figsize=(5,5))
+                                              figsize=(10, 10))
     # Add data to ax0 (first graph)
     bar1 = ax0.bar(x=df["username"],
                    height=df["wins"])
@@ -237,14 +237,33 @@ class MainApplication(GUI):
     def __init__(self, master):
         GUI.__init__(self, master)
         self.master.title("Dice Game")
-        self.players = player1.username, player2.username
-        self.playersText = tk.Variable()
-        self.playersText.set((player1.username, player2.username))
-        self.button1 = tk.Button(self.frame, text = 'Statistics', width = 25, command = self.show_statistics)
-        self.playersLabel = tk.Label(self.frame, textvariable=self.playersText)
-        self.button1.pack()
-        self.playersLabel.pack()
-        self.frame.pack()
+        self.master['pady'] = 10
+        self.master['padx'] = 10
+        self.master.columnconfigure(0, weight=1)
+        self.master.columnconfigure(1, weight=1)
+        self.master.columnconfigure(2, weight=1)
+        self.master.columnconfigure(3, weight=1)
+        self.master.columnconfigure(4, weight=1)
+        self.master.rowconfigure(0, weight=1)
+        self.master.rowconfigure(1, weight=1)
+        self.master.rowconfigure(2, weight=1)
+        self.master.rowconfigure(3, weight=1)
+        self.master.rowconfigure(4, weight=1)
+
+        self.playerTextRaw = "Player 1: {} \nPlayer 2: {}".format(player1.username, player2.username)
+        # self.player2TextRaw = "Player 2: {}".format(player2.username)
+        self.playerText = tk.Variable()
+        self.playerText.set(self.playerTextRaw)
+        # self.player2Text = tk.Variable()
+        # self.player2Text.set(self.player2TextRaw)
+        self.button1 = tk.Button(self.master, text = 'Statistics', width = 10, command = self.show_statistics)
+        self.playerLabel = tk.Label(self.master, textvariable=self.playerText)
+        # self.player2Label = tk.Label(self.master, textvariable=self.player2Text)
+        self.button1.grid(row=0, column=0, sticky='nw')
+        self.playerLabel.grid(row=0, column=4, sticky='ne')
+        # self.player2Label.grid(row=0, column=4)
+        # self.playersLabel.pack()
+        # self.frame.pack()
     def show_statistics(self):
         stats()
 
