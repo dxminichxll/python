@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 import sqlite3
 import tkinter as tk
 from PIL import ImageTk, Image
+import time
+import random
 # Connect to database and create table if needed
 db = sqlite3.connect("accounts.sqlite", detect_types=sqlite3.PARSE_DECLTYPES)
 db.execute("""CREATE TABLE IF NOT EXISTS users (username TEXT,
@@ -257,40 +259,71 @@ class MainApplication(GUI):
         self.playerText.set(self.playerTextRaw)
         self.button1 = tk.Button(self.master, text = 'Statistics', width = 10, command = self.show_statistics)
         self.playerLabel = tk.Label(self.master, textvariable=self.playerText)
+        self.rollButton = tk.Button(self.master, text='Roll dice', width=40, command=self.roll)
 
         self.button1.grid(row=0, column=0, sticky='nw')
         self.playerLabel.grid(row=0, column=4, sticky='ne')
+        self.rollButton.grid(row=2, column=1, columnspan=2)
 
         self.image = Image.open("images/dice1.jpg")
         self.image = self.image.resize((80,80), Image.ANTIALIAS)
         self.dice1Image = ImageTk.PhotoImage(self.image)
-        self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
-        self.dice1ImageLabel.grid(row=1, column=1)
 
         self.image = Image.open("images/dice2.jpg")
         self.image = self.image.resize((80,80), Image.ANTIALIAS)
         self.dice2Image = ImageTk.PhotoImage(self.image)
+
+        self.image = Image.open("images/dice3.jpg")
+        self.image = self.image.resize((80,80), Image.ANTIALIAS)
+        self.dice3Image = ImageTk.PhotoImage(self.image)
+
+        self.image = Image.open("images/dice4.jpg")
+        self.image = self.image.resize((80,80), Image.ANTIALIAS)
+        self.dice4Image = ImageTk.PhotoImage(self.image)
+
+        self.image = Image.open("images/dice5.jpg")
+        self.image = self.image.resize((80,80), Image.ANTIALIAS)
+        self.dice5Image = ImageTk.PhotoImage(self.image)
+
+        self.image = Image.open("images/dice6.jpg")
+        self.image = self.image.resize((80,80), Image.ANTIALIAS)
+        self.dice6Image = ImageTk.PhotoImage(self.image)
+
+
+        self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
+        self.dice1ImageLabel.grid(row=1, column=1)
         self.dice2ImageLabel = tk.Label(self.master, image=self.dice2Image)
         self.dice2ImageLabel.grid(row=1, column=2)
 
 
-        # =============================== testing something
-        import time
-        # self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
-        # self.dice1ImageLabel.grid(row=2, column=1)
+        # =============================== dice rolling
+    def roll(self):
+        self.count = 0.01
+        self.dice = [self.dice1Image, self.dice2Image, self.dice3Image, self.dice4Image, self.dice5Image, self.dice6Image]
         for i in range(1, 100):
-            # self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
-            # self.dice1ImageLabel.grid(row=2, column=1)
-            master.update()
-            time.sleep(0.2)
-            self.dice1ImageLabel.configure(image=self.dice2Image)
-            self.dice2ImageLabel.configure(image=self.dice1Image)
-            master.update()
-            time.sleep(0.2)
-            self.dice1ImageLabel.configure(image=self.dice1Image)
-            self.dice2ImageLabel.configure(image=self.dice2Image)
-            # self.dice1ImageLabel = tk.Label(self.master, image=self.dice1Image)
-            # self.dice1ImageLabel.grid(row=2, column=1)
+            self.master.update()
+            randompic1 = random.choice(self.dice)
+            randompic2 = random.choice(self.dice)
+            self.dice1ImageLabel.configure(image=randompic1)
+            time.sleep(self.count)
+            self.dice2ImageLabel.configure(image=randompic2)
+            time.sleep(self.count)
+            self.count = self.count * 1.5
+
+            print(self.count)
+
+            if self.count > 0.5:
+                self.dice1 = randompic1
+                self.dice2 = randompic2
+                break
+        print('dice stopped')
+        self.dice1 = int(str(self.dice1)[-1])
+        self.dice2 = int(str(self.dice2)[-1])
+        print(self.dice1)
+        print(self.dice2)
+
+
+
 
 
 
@@ -305,7 +338,12 @@ class MainApplication(GUI):
 
 if __name__ == '__main__': # main program
     root = tk.Tk()
-    userAuthApp = UserAuthentification(root)
+    # userAuthApp = UserAuthentification(root)
+
+    player1 = Player('dom', 'password')
+    player2 = Player('mac', 'ok')
+    app = MainApplication(root)
+
     root.mainloop() # creates login window
 
 # Commit and database changes and close it
