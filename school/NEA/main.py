@@ -46,8 +46,8 @@ class Player():
 
         else:
             print("username does not exist")
-            userAuthApp.errorText.set("Username does not exist, try signing up")
-            userAuthApp.passwordEntry1.delete(0, 'end')
+            app.errorText.set("Username does not exist, try signing up")
+            app.passwordEntry1.delete(0, 'end')
 
         for password in db.execute("SELECT password FROM users WHERE (username=?)", (self.username,)):
             password = password[0] # select password for username from database
@@ -56,8 +56,8 @@ class Player():
                 return True # login is successful
             else:
                 print("Incorrect password")
-                userAuthApp.errorText.set("Incorrect password, please try again")
-                userAuthApp.passwordEntry1.delete(0, 'end')
+                app.errorText.set("Incorrect password, please try again")
+                app.passwordEntry1.delete(0, 'end')
 
 
 def register(username, password):
@@ -67,9 +67,9 @@ def register(username, password):
     if username not in allUsernames: # if username not already in database:
         # Add user to sqlite database
         db.execute("INSERT INTO users VALUES (?, ?, ?, ?, ?)", (username, password, 0, 0, 0))
-        userAuthApp.signUpApp.errorText.set("Account created, exit this tab and log in")
+        app.signUpApp.errorText.set("Account created, exit this tab and log in")
     else:
-        userAuthApp.signUpApp.errorText.set("Username already in use")
+        app.signUpApp.errorText.set("Username already in use")
 
     # TODO: add password strength test
 
@@ -322,6 +322,12 @@ class MainApplication(GUI):
         print(self.dice1)
         print(self.dice2)
 
+        self.add_dice(self.dice1, self.dice2)
+
+    def add_dice(self, dice1, dice2):
+        print(dice1 + dice2)
+
+
 
 
 
@@ -338,11 +344,11 @@ class MainApplication(GUI):
 
 if __name__ == '__main__': # main program
     root = tk.Tk()
-    # userAuthApp = UserAuthentification(root)
+    # app = UserAuthentification(root)
 
-    player1 = Player('dom', 'password')
-    player2 = Player('mac', 'ok')
-    app = MainApplication(root)
+    # player1 = Player('dom', 'password')
+    # player2 = Player('mac', 'ok')
+    app = UserAuthentification(root)
 
     root.mainloop() # creates login window
 
