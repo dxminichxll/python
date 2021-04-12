@@ -32,9 +32,10 @@ class Player():
                     basically a login method
     """
 
-    def __init__(self, username, password):
+    def __init__(self, username, password, score=0):
         self.username = username
         self._password = password
+        self.score = score
 
 
     def search(self):
@@ -240,6 +241,9 @@ class MainApplication(GUI):
     """
     def __init__(self, master):
         GUI.__init__(self, master)
+        self.currentPlayer = "player1"
+        self.round = 1
+        self.numberOfPlays = 0
         self.master.title("Dice Game")
         self.master['pady'] = 10
         self.master['padx'] = 10
@@ -254,16 +258,43 @@ class MainApplication(GUI):
         self.master.rowconfigure(3, weight=1)
         self.master.rowconfigure(4, weight=1)
 
+        self.statsButton = tk.Button(self.master, text = 'Statistics', width = 10, command = self.show_statistics)
+        self.statsButton.grid(row=0, column=0, sticky='nw')
+
+
         self.playerTextRaw = "Player 1: {} \nPlayer 2: {}".format(player1.username, player2.username)
         self.playerText = tk.Variable()
         self.playerText.set(self.playerTextRaw)
-        self.button1 = tk.Button(self.master, text = 'Statistics', width = 10, command = self.show_statistics)
         self.playerLabel = tk.Label(self.master, textvariable=self.playerText)
-        self.rollButton = tk.Button(self.master, text='Roll dice', width=40, command=self.roll)
-
-        self.button1.grid(row=0, column=0, sticky='nw')
         self.playerLabel.grid(row=0, column=4, sticky='ne')
+
+        self.rollButton = tk.Button(self.master, text='Roll dice', width=40, command=self.roll)
         self.rollButton.grid(row=2, column=1, columnspan=2)
+
+        self.roundTextRaw = "Round 1"
+        self.roundText = tk.Variable()
+        self.roundText.set(self.roundTextRaw)
+        self.roundLabel = tk.Label(self.master, font="Helvetica 20 bold italic", textvariable=self.roundText)
+        self.roundLabel.grid(row=0, column = 1, columnspan=2, sticky='n')
+
+        self.player1ScoreTextRaw = "{} : 0".format(player1.username)
+        self.player1ScoreText = tk.Variable()
+        self.player1ScoreText.set(self.player1ScoreTextRaw)
+        self.player1Score = tk.Label(self.master, font="Helvetica 20 italic", textvariable=self.player1ScoreText)
+        self.player1Score.grid(row=4, column = 1, sticky='s')
+
+        self.player2ScoreTextRaw = "{} : 0".format(player2.username)
+        self.player2ScoreText = tk.Variable()
+        self.player2ScoreText.set(self.player2ScoreTextRaw)
+        self.player2Score = tk.Label(self.master, font="Helvetica 20 italic", textvariable=self.player2ScoreText)
+        self.player2Score.grid(row=4, column = 2, sticky='s')
+
+        self.currentPlayerVarRaw = "{}'s go".format(player1.username)
+        self.currentPlayerVar = tk.Variable()
+        self.currentPlayerVar.set(self.currentPlayerVarRaw)
+        self.currentplayerLabel = tk.Label(self.master, font="Helvetica 14 italic", textvariable=self.currentPlayerVar)
+        self.currentplayerLabel.grid(row=0, column=1, columnspan=2, sticky='s')
+
 
         self.image = Image.open("images/dice1.jpg")
         self.image = self.image.resize((80,80), Image.ANTIALIAS)
@@ -296,6 +327,8 @@ class MainApplication(GUI):
         self.dice2ImageLabel.grid(row=1, column=2)
 
 
+
+
         # =============================== dice rolling
     def roll(self):
         self.count = 0.01
@@ -322,10 +355,71 @@ class MainApplication(GUI):
         print(self.dice1)
         print(self.dice2)
 
-        self.add_dice(self.dice1, self.dice2)
+        self.add_dice(self.dice1, self.dice2, self.currentPlayer)
 
-    def add_dice(self, dice1, dice2):
+
+
+    def add_dice(self, dice1, dice2, currentPlayer):
         print(dice1 + dice2)
+
+        total = dice1 + dice2
+
+        if total % 2 == 0:
+            print("EVEN TOTAL")
+            if currentPlayer == "player1":
+                player1.score += total + 10
+            else:
+                player2.score += total + 10
+        else:
+            print("ODD TOTAL")
+            if currentPlayer == "player1":
+                player1.score += total - 5
+            else:
+                player2.score += total - 5
+
+        print("current player:", currentPlayer)
+        print("player1 score:", player1.score)
+        print("player2 score:", player2.score)
+
+        self.reload_scores()
+
+
+    def reload_scores(self):
+
+        if self.currentPlayer == "player1":
+            self.currentPlayerVarRaw = "{}'s go".format(player2.username)
+            self.currentPlayerVar.set(self.currentPlayerVarRaw)
+            self.currentPlayer = "player2"
+        else:
+            self.currentPlayerVarRaw = "{}'s go".format(player1.username)
+            self.currentPlayerVar.set(self.currentPlayerVarRaw)
+            self.currentPlayer = "player1"
+        self.numberOfPlays += 1
+
+        if self.numberOfPlays % 2 == 0:
+
+            if self.round < 6:
+                self.round += 1
+                self.roundTextRaw = "Round {}".format(self.round)
+                self.roundText.set(self.roundTextRaw)
+            else:
+                if player1.score == player2.score:
+                    self.round += 1
+                    self.roundTextRaw = "Round {}".format(self.round)
+                    self.roundText.set(self.roundTextRaw)
+                    self.roundLabel.config(foreground="red")
+                else:
+                    self.finish_game()
+
+        player1ScoreTextRaw = "{}: {}".format(player1.username, player1.score)
+        self.player1ScoreText.set(player1ScoreTextRaw)
+        player2ScoreTextRaw = "{}: {}".format(player2.username, player2.score)
+        self.player2ScoreText.set(player2ScoreTextRaw)
+
+
+    def finish_game(self):
+        pass
+
 
 
 
