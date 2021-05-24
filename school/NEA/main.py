@@ -83,7 +83,7 @@ def stats(): # Creates and presents statistics for each user
     # Create subplots for graphs
     fig, ((ax0, ax1), (ax2, ax3)) = plt.subplots(nrows=2,
                                               ncols=2,
-                                              figsize=(10, 10))
+                                              figsize=(8.5, 8.5))
     # Add data to ax0 (first graph)
     bar1 = ax0.bar(x=df["username"],
                    height=df["wins"])

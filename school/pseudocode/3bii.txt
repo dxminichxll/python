@@ -1,0 +1,12 @@
+firstName = input("First name: ")
+surname = input("Surname: ")
+status = input("Are you a teacher or student?: ")
+if status == "teacher" then
+  username = surname[-3:] + firstName[:2]
+
+else
+  username = firstname[:3] + surname[:2]
+
+endif
+
+print(username)
