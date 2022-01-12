@@ -19,10 +19,19 @@ clock = pygame.time.Clock()
 
 # Set colour variables
 WHITE = (255, 255, 255)
+GREEN = (0, 255, 0)
+RED = (255, 0, 0)
+BLACK = (0, 0, 0)
 
 letters =  ["A", "B", "C", "D", "E", "F", "G", "H"]
 numbers = ["1", "2", "3", "4", "5", "6", "7", "8"]
 letterDict = {'A': 0, 'B': 1, 'C': 2, 'D': 3, 'E': 4, 'F': 5, 'G': 6, 'H': 7}
+
+vine_boom = pygame.mixer.Sound('vine_boom.wav')
+dundundun = pygame.mixer.Sound('dundundun.wav')
+wow = pygame.mixer.Sound('wow.wav')
+
+
 
 # Set font
 font = pygame.font.SysFont('calibri', int(blockSize/1.5))
@@ -56,17 +65,32 @@ class Game():
 
                 rect = pygame.Rect(x, y, self.blockSize, self.blockSize)
                 pygame.draw.rect(display_surface, WHITE, rect, 1)
+        
+
+        # self.subText = font.render("", True, WHITE)
+        # self.subRect = self.subText.get_rect()
+        # self.alertText = font.render("", True, WHITE)
+        # self.alertRect = self.alertText.get_rect()
+        # display_surface.blit(self.alertText, self.alertRect)
+        # display_surface.blit(self.subText,self.subRect)
 
     def alert(self, text):
-        alertText = font.render(text, True, WHITE)
-        alertRect = alertText.get_rect()
-        alertRect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
+        global running
 
-        subText = font.render("Press enter to continue", True, WHITE)
-        subRect = subText.get_rect()
-        subRect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2+100)
-        display_surface.blit(alertText, alertRect)
-        display_surface.blit(subText,subRect)
+        # rect = pygame.Rect(0, 0, WINDOW_WIDTH, WINDOW_HEIGHT)
+        # pygame.draw.rect(display_surface, BLACK, rect, 1)
+
+        display_surface.fill(BLACK)
+
+        self.alertText = font.render(text, True, WHITE)
+        self.alertRect = self.alertText.get_rect()
+        self.alertRect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2)
+
+        self.subText = font.render("Press enter to exit game", True, WHITE)
+        self.subRect = self.subText.get_rect()
+        self.subRect.center = (WINDOW_WIDTH//2, WINDOW_HEIGHT//2+100)
+        display_surface.blit(self.alertText, self.alertRect)
+        display_surface.blit(self.subText,self.subRect)
         pygame.display.update()
 
         is_paused = True
@@ -75,15 +99,29 @@ class Game():
                     if event.type == pygame.KEYDOWN:
                         if event.key == pygame.K_RETURN:
                             is_paused = False
+                            running = False
+
                     if event.type == pygame.QUIT:
                         is_paused = False
                         running = False
 
+    def check_winner(self, player):
+        hit_count = 0
+        for row in player.hit_grid:
+            hit_count += row.count("H")
+        if hit_count >= 5:
+            print(player.name, "won!!!")
+            self.alert("{} won!!".format(player.name))
+
+
+
 
 class Player():
     """A class that can manage a player"""
-    def __init__(self):
+    def __init__(self, name="Computer"):
         self.grid = [[0 for x in range (1, 9)] for y in range (1, 9)]
+        self.hit_grid = [[0 for x in range (1, 9)] for y in range (1, 9)]
+        self.name = name
 
     def createGrid(self, computer=False): # Puts ships on the grid
         global letterDict
@@ -133,28 +171,79 @@ class Player():
         num2 = random.randint(0, 7)
         return num1, num2
 
-    def shoot(self, player, computer_grid, coordX, coordY, blockSize): # Sends a shot to the other players grid
+    def shoot(self, coordX, coordY, blockSize): # Sends a shot to the other players grid
+        global valid_shot
         coordX = coordX // blockSize
         coordY = coordY // blockSize
-        print(coordX-1, coordY-1)
+        # print(coordX-1, coordY-1)
 
         # Check if the the other grid has a ship on it
-        if player == computer:
+        if self.name == "Computer":
+            print("Computers turn")
+            print(coordX, coordY)
+            if self.hit_grid[coordX-1][coordY-1] != "H" and self.hit_grid[coordX-1][coordY-1] != "M":
+                valid_shot = True
+                if player.grid[coordY-1][coordX-1] == 1:
+                    self.hit_grid[coordX-1][coordY-1] = "H"
 
-            pass
+                    print(coordX, coordY)
+
+                    dundundun.play()
+
+                    print("Computer has hit you at", str(list(letterDict.keys())[coordY-1]) + str(coordX))
+
+                    # my_game.alert("Computer has hit you", "shot")
+                    
+                    return True
+
+                else:
+                    self.hit_grid[coordY-1][coordX-1] = "M"
+            
+            
         else:
-            print("Here")
-            print(computer.grid[coordY-1][coordX-1])
-            if computer.grid[coordY-1][coordX-1] == 1:
-                print("HIT")
-                return True
+            # print("Here")
+            # print(computer.grid[coordY-1][coordX-1])
+
+            if self.hit_grid[coordY-1][coordX-1] != "H" and self.hit_grid[coordY-1][coordX-1] != "M":
+                valid_shot = True
+                if computer.grid[coordY-1][coordX-1] == 1:
+                    self.hit_grid[coordY-1][coordX-1] = "H"
+                    # print("HIT")
+
+                    wow.play()
+
+                    letter = font.render("H", True, GREEN)
+                    letter_rect = letter.get_rect()
+                    letter_rect.left = blockSize * coordX + blockSize / 4
+                    letter_rect.top = blockSize * coordY + blockSize / 4
+                    display_surface.blit(letter, letter_rect)
+
+                    return True
+                else:
+                    self.hit_grid[coordY-1][coordX-1] = "M"
+                    # print("Miss")
+
+                    vine_boom.play()
+
+                    letter = font.render("M", True, RED)
+                    letter_rect = letter.get_rect()
+                    letter_rect.left = blockSize * coordX + blockSize / 4
+                    letter_rect.top = blockSize * coordY + blockSize / 4
+                    display_surface.blit(letter, letter_rect)
+
+                    
+
+                    return False
+
+                                
+        
 
 
 # Create a game object
 my_game = Game(blockSize)
 
 
-player = Player()
+player = Player(name="Human")
 # for row in player.grid:
 #     print(row)
 player.createGrid()
@@ -167,27 +256,66 @@ for row in computer.grid:
 
 
 
+state = "player turn"
+
+
+
 running = True
 while running:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            running = False
+    # for event in pygame.event.get():
+    #     if event.type == pygame.QUIT:
+    #         running = False
 
-        # Player wants to warp
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            coordX, coordY = pygame.mouse.get_pos()
+    if state == "player turn":
+        valid_shot = False
+        while valid_shot == False:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                    valid_shot = True
+                
+                if event.type == pygame.MOUSEBUTTONDOWN:
+                    coordX, coordY = pygame.mouse.get_pos()
+                    if coordX < blockSize * 9 and coordX > blockSize and coordY < blockSize * 9 and coordY > blockSize:
+                        if player.shoot(coordX, coordY, blockSize):
+                            # player.shoot(player, computer.grid, coordX, coordY, blockSize)
+                            print("Over here")
+                            my_game.check_winner(player)
+                            # my_game.alert("Hit computer")
+        
+            # Update and draw the game
+            my_game.draw()
+
+            # Update display and tick clock
+            pygame.display.update()
+            clock.tick(FPS)
+                            
+        state = "Computer turn"
+        
+    elif state == "Computer turn":
+        valid_shot = False
+        while valid_shot == False:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+            #Computer code
+            coordX, coordY =  random.randint(blockSize, WINDOW_HEIGHT), random.randint(blockSize, WINDOW_HEIGHT)
             if coordX < blockSize * 9 and coordX > blockSize and coordY < blockSize * 9 and coordY > blockSize:
-                if player.shoot(player, computer.grid, coordX, coordY, blockSize):
-                    my_game.alert("Hit computer")
+                if computer.shoot(coordX, coordY, blockSize):
+                    my_game.check_winner
+            
+            # Update and draw the game
+            my_game.draw()
 
+            # Update display and tick clock
+            pygame.display.update()
+            clock.tick(FPS)
 
-    # Update and draw the game
-    my_game.draw()
-
-    # Update display and tick clock
-    pygame.display.update()
-    clock.tick(FPS)
+        state = "player turn"
 
 
 # End the game
 pygame.quit()
+
+for row in computer.hit_grid:
+    print(row)
